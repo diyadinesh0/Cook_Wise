@@ -53,7 +53,7 @@ Rules:
     try {
 
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+           model: "gemini-2.5-flash-lite",
             contents: prompt
         });
 
@@ -68,4 +68,5 @@ Rules:
 
 });
 const PORT = 5000;
+
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
