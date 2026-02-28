@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let's Cook Something</title>
+    <link rel="stylesheet" href="style1.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="hero-section">
+        <div class="overlay"></div>
+        
+        <div class="content">
+            <button class="get-started-btn" onclick="goToApp()">
+    GET STARTED <span class="icon">🍴</span>
+</button>
+        </div>
+    </header>
+<script>
+function goToApp(){
+    document.body.style.opacity = "0";
+    setTimeout(()=>{
+        window.location.href = "index.html";
+    },300);
+}
+</script>
+</body>
+</html>

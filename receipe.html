@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CookWise - Your Recipes</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="top-header">
+        <h1 class="logo-title" onclick="window.location.href='index.html'" style="cursor:pointer">
+            👨‍🍳 CookWise
+        </h1>
+    </header>
+
+    <div class="recipe-display-container" style="padding:40px; max-width:800px; margin:auto;">
+        <div id="recipeList">
+            <div class="recipe-card">
+                <div class="recipe-title">🤖 AI is thinking...</div>
+            </div>
+        </div>
+
+        <button class="main-btn" onclick="window.location.href='index.html'">
+            Back to Ingredients
+        </button>
+    </div>
+
+<script>
+async function showRecipes() {
+
+    const selected = JSON.parse(localStorage.getItem("selectedIngredients") || "[]");
+    const time = localStorage.getItem("selectedTime") || "any";
+    const dish = localStorage.getItem("selectedDish") || "any";
+    const health = localStorage.getItem("selectedHealth") || "none";
+
+    const list = document.getElementById("recipeList");
+
+    try {
+
+        const response = await fetch("http://localhost:5000/getRecipes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                ingredients: selected,
+                time: time,
+                dish: dish,
+                health: health
+            })
+        });
+
+        const data = await response.json();
+
+        const rawText = data.reply.trim();
+        const cleaned = rawText.replace(/```json|```/g, "").trim();
+        let recipes = JSON.parse(cleaned);
+
+        list.innerHTML = "";
+        window.generatedRecipes = recipes;
+
+        recipes.forEach((recipe, index) => {
+
+            list.innerHTML += `
+                <div class="recipe-card" id="recipe-${index}" 
+                     style="background:white; padding:20px; border-radius:15px; 
+                     margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                    
+                    <div class="recipe-title" 
+                         style="font-weight:bold; color:#2e7d32; font-size:1.2rem;">
+                        ${recipe.title}
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        ⏱ <b>Time:</b> ${recipe.time}
+                    </div>
+
+                    <div style="margin-top:15px;">
+                        <button class="view-btn" onclick="viewRecipe(${index})">
+                            📖 View Recipe
+                        </button>
+
+                        <button class="video-btn" onclick="watchVideo('${recipe.videoLink}')">
+                            ▶ Watch Video
+                        </button>
+                    </div>
+
+                </div>
+            `;
+        });
+
+    } catch (error) {
+        console.error(error);
+        list.innerHTML = `
+            <div class="recipe-card">
+                ❌ Error loading recipes. Make sure server is running.
+            </div>
+        `;
+    }
+}
+
+
+function viewRecipe(index) {
+
+    const recipe = window.generatedRecipes[index];
+    const card = document.getElementById("recipe-" + index);
+
+    let existing = card.querySelector(".recipe-details");
+    if (existing) {
+        existing.remove();
+        return;
+    }
+
+    document.querySelectorAll(".recipe-details").forEach(el => el.remove());
+
+    const details = document.createElement("div");
+    details.className = "recipe-details";
+    details.style.marginTop = "15px";
+    details.style.padding = "15px";
+    details.style.background = "#f9f9f9";
+    details.style.borderRadius = "10px";
+    details.style.lineHeight = "1.8";
+
+    const ingredientsHTML = recipe.ingredients
+        ? "<ul>" + recipe.ingredients.map(i => `<li>${i}</li>`).join("") + "</ul>"
+        : "";
+
+    const stepsHTML = recipe.steps
+        ? "<ol>" + recipe.steps.map(s => `<li>${s}</li>`).join("") + "</ol>"
+        : "<p>No steps provided.</p>";
+
+    details.innerHTML = `
+        <h4 style="color:#2e7d32;">🧂 Ingredients</h4>
+        ${ingredientsHTML}
+        <h4 style="margin-top:15px; color:#2e7d32;">👨‍🍳 Cooking Steps</h4>
+        ${stepsHTML}
+    `;
+
+    card.appendChild(details);
+}
+
+
+function watchVideo(link) {
+    window.open(link, "_blank");
+}
+
+window.onload = showRecipes;
+</script>
+  
+
+</body>
+</html>
